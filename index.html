@@ -158,6 +158,15 @@
             font-family: 'Courier New', monospace;
         }
 
+        .best-time {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
         /* ==================== 方格容器 ==================== */
         .grid-container {
             display: grid;
@@ -380,6 +389,9 @@
         <!-- 计时器 -->
         <div class="timer" id="timer">00:00:00</div>
 
+        <!-- 最短用时 -->
+        <div class="best-time" id="bestTime">最短用时: --:--:--</div>
+
         <!-- 状态提示 -->
         <div class="status" id="status">点击任意数字开始训练</div>
         
@@ -400,13 +412,66 @@
         // ==================== DOM 元素引用 ====================
         const timerDisplay = document.getElementById('timer');
         const statusDisplay = document.getElementById('status');
+        const bestTimeDisplay = document.getElementById('bestTime');
         const gridContainer = document.getElementById('grid');
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const gridSizeSelect = document.getElementById('gridSize');
 
         // ==================== 工具函数 ====================
-        
+
+        /**
+         * 获取当前方格大小的localStorage键名
+         * @param {number} size - 方格大小
+         * @returns {string} - localStorage键名
+         */
+        function getBestTimeKey(size) {
+            return `schulteGrid_bestTime_${size}x${size}`;
+        }
+
+        /**
+         * 读取最短用时
+         * @param {number} size - 方格大小
+         * @returns {number|null} - 最短用时（毫秒），如果没有记录则返回null
+         */
+        function getBestTime(size) {
+            const key = getBestTimeKey(size);
+            const savedTime = localStorage.getItem(key);
+            return savedTime ? parseInt(savedTime) : null;
+        }
+
+        /**
+         * 更新最短用时显示
+         * @param {number} size - 方格大小
+         */
+        function updateBestTimeDisplay(size) {
+            const bestTime = getBestTime(size);
+            if (bestTime) {
+                const minutes = Math.floor(bestTime / 60000);
+                const seconds = Math.floor((bestTime % 60000) / 1000);
+                const milliseconds = Math.floor((bestTime % 1000) / 10);
+                bestTimeDisplay.textContent = `最短用时: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            } else {
+                bestTimeDisplay.textContent = '最短用时: --:--:--';
+            }
+        }
+
+        /**
+         * 保存最短用时
+         * @param {number} size - 方格大小
+         * @param {number} time - 用时（毫秒）
+         */
+        function saveBestTime(size, time) {
+            const key = getBestTimeKey(size);
+            const currentBest = getBestTime(size);
+            if (!currentBest || time < currentBest) {
+                localStorage.setItem(key, time.toString());
+                updateBestTimeDisplay(size);
+                return true; // 新纪录
+            }
+            return false; // 不是新纪录
+        }
+
         /**
          * 生成随机数组（使用 Fisher-Yates 洗牌算法）
          * @param {number} size - 方格大小
@@ -625,6 +690,7 @@
 
             // 重新打乱方格
             createGrid(gridSize);
+            updateBestTimeDisplay(gridSize);
         }
 
         /**
@@ -635,25 +701,34 @@
             isPaused = false;
             clearInterval(timerInterval);
             pauseBtn.disabled = true;
-            const finalTime = timerDisplay.textContent;
+
+            // 计算实际用时（毫秒）
+            const elapsed = Date.now() - startTime - pausedTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const milliseconds = Math.floor((elapsed % 1000) / 10);
+            const finalTimeText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+
+            // 保存最短用时并检查是否打破记录
+            const isNewRecord = saveBestTime(gridSize, elapsed);
 
             // 显示成功消息
             const overlay = document.createElement('div');
             overlay.className = 'overlay';
-            
+
             const successMsg = document.createElement('div');
             successMsg.className = 'success-message';
             successMsg.innerHTML = `
                 恭喜完成！<br><br>
-                用时: ${finalTime}<br><br>
-                方格大小: <span class="grid-size-text">${gridSize}×${gridSize}</span>
+                用时: ${finalTimeText}<br><br>
+                方格大小: <span class="grid-size-text">${gridSize}×${gridSize}</span>${isNewRecord ? '<br><br><span style="color: #ffeb3b; font-size: 0.9em;">打破纪录！</span>' : ''}
             `;
-            
+
             document.body.appendChild(overlay);
             document.body.appendChild(successMsg);
-            
+
             statusDisplay.textContent = '游戏完成！点击任意位置继续';
-            
+
             setTimeout(() => {
                 const closeMessage = () => {
                     overlay.remove();
@@ -695,6 +770,7 @@
         // ==================== 初始化 ====================
         // 初始化显示 3×3 方格
         createGrid(3);
+        updateBestTimeDisplay(3);
     </script>
 </body>
 </html>
