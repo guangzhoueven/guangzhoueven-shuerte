@@ -348,7 +348,7 @@
 <body>
     <!-- 主容器 -->
     <div class="container">
-        <h1>🎯 舒尔特方格</h1>
+        <h1>舒尔特方格</h1>
         
         <!-- 控制区 -->
         <div class="controls">
@@ -372,16 +372,16 @@
                 </select>
             </div>
             <div class="button-row">
-                <button class="btn-start" id="startBtn">开始游戏</button>
+                <button class="btn-start" id="startBtn">重置</button>
                 <button class="btn-pause" id="pauseBtn" disabled>暂停</button>
             </div>
         </div>
 
         <!-- 计时器 -->
         <div class="timer" id="timer">00:00:00</div>
-        
+
         <!-- 状态提示 -->
-        <div class="status" id="status">点击"开始游戏"开始训练</div>
+        <div class="status" id="status">点击任意数字开始训练</div>
         
         <!-- 方格容器 -->
         <div class="grid-container" id="grid"></div>
@@ -453,6 +453,13 @@
          * @param {Event} e - 点击事件对象
          */
         function handleCellClick(e) {
+            // 如果游戏未开始且未暂停，自动开始游戏
+            if (!gameStarted && !isPaused) {
+                const clickedNumber = parseInt(e.target.dataset.number);
+                startGame(clickedNumber);
+                return;
+            }
+
             if (!gameStarted || isPaused) return;
 
             const clickedNumber = parseInt(e.target.dataset.number);
@@ -462,7 +469,7 @@
                 // 正确点击
                 cell.classList.add('correct');
                 cell.disabled = true;
-                
+
                 const totalCells = gridSize * gridSize;
                 if (currentNumber === totalCells) {
                     // 游戏完成
@@ -475,7 +482,7 @@
                 // 错误点击
                 cell.classList.add('wrong');
                 showError(clickedNumber);
-                
+
                 setTimeout(() => {
                     cell.classList.remove('wrong');
                 }, 400);
@@ -489,7 +496,7 @@
         function showError(wrongNumber) {
             const errorMsg = document.createElement('div');
             errorMsg.className = 'error-message';
-            errorMsg.textContent = `❌ 错误！应该点击 ${currentNumber}，你点击了 ${wrongNumber}`;
+            errorMsg.textContent = `错误！应该点击 ${currentNumber}，你点击了 ${wrongNumber}`;
             document.body.appendChild(errorMsg);
             
             setTimeout(() => {
@@ -543,30 +550,81 @@
         }
 
         /**
-         * 开始游戏
+         * 开始游戏（不打乱方格，开始计时）
+         * @param {number} firstClickedNumber - 用户首次点击的数字（可选）
          */
-        function startGame() {
-            gridSize = parseInt(gridSizeSelect.value);
+        function startGame(firstClickedNumber) {
             currentNumber = 1;
             gameStarted = true;
             isPaused = false;
             pausedTime = 0;
             startTime = Date.now();
-            
-            startBtn.textContent = '重新开始';
+
             pauseBtn.textContent = '暂停';
             pauseBtn.disabled = false;
             statusDisplay.textContent = `请点击数字: ${currentNumber}`;
             timerDisplay.textContent = '00:00:00';
             gridContainer.style.opacity = '1';
             gridContainer.style.pointerEvents = 'auto';
-            
-            createGrid(gridSize);
-            
+
+            // 重置所有方格状态
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('correct', 'wrong');
+                cell.disabled = false;
+            });
+
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
             timerInterval = setInterval(updateTimer, 10);
+
+            // 如果用户首次点击的是1，自动标记为正确
+            if (firstClickedNumber === 1) {
+                cells.forEach(cell => {
+                    if (parseInt(cell.dataset.number) === 1) {
+                        cell.classList.add('correct');
+                        cell.disabled = true;
+                    }
+                });
+
+                const totalCells = gridSize * gridSize;
+                if (currentNumber === totalCells) {
+                    // 游戏完成
+                    endGame();
+                } else {
+                    currentNumber++;
+                    statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+                }
+            }
+        }
+
+        /**
+         * 重置游戏（打乱方格，停止计时）
+         */
+        function resetGame() {
+            gridSize = parseInt(gridSizeSelect.value);
+            currentNumber = 1;
+            gameStarted = false;
+            isPaused = false;
+            pausedTime = 0;
+            startTime = null;
+
+            pauseBtn.textContent = '暂停';
+            pauseBtn.disabled = true;
+            statusDisplay.textContent = '点击任意数字开始训练';
+            timerDisplay.textContent = '00:00:00';
+            gridContainer.style.opacity = '1';
+            gridContainer.style.pointerEvents = 'auto';
+
+            // 停止计时
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            // 重新打乱方格
+            createGrid(gridSize);
         }
 
         /**
@@ -586,7 +644,7 @@
             const successMsg = document.createElement('div');
             successMsg.className = 'success-message';
             successMsg.innerHTML = `
-                🎉 恭喜完成！<br><br>
+                恭喜完成！<br><br>
                 用时: ${finalTime}<br><br>
                 方格大小: <span class="grid-size-text">${gridSize}×${gridSize}</span>
             `;
@@ -594,25 +652,24 @@
             document.body.appendChild(overlay);
             document.body.appendChild(successMsg);
             
-            statusDisplay.textContent = '游戏完成！点击"重新开始"再玩一次';
+            statusDisplay.textContent = '游戏完成！点击任意位置继续';
             
             setTimeout(() => {
-                overlay.addEventListener('click', () => {
+                const closeMessage = () => {
                     overlay.remove();
                     successMsg.remove();
-                });
-                successMsg.addEventListener('click', () => {
-                    overlay.remove();
-                    successMsg.remove();
-                });
+                    resetGame(); // 打乱方格
+                };
+                overlay.addEventListener('click', closeMessage);
+                successMsg.addEventListener('click', closeMessage);
             }, 100);
         }
 
         // ==================== 事件监听 ====================
-        
-        // 开始游戏按钮
-        startBtn.addEventListener('click', startGame);
-        
+
+        // 重置按钮
+        startBtn.addEventListener('click', resetGame);
+
         // 暂停/继续按钮
         pauseBtn.addEventListener('click', () => {
             if (isPaused) {
@@ -621,15 +678,17 @@
                 pauseGame();
             }
         });
-        
+
         // 方格大小选择器
         gridSizeSelect.addEventListener('change', () => {
             if (gameStarted) {
                 if (confirm('更改方格大小将重新开始游戏，确定吗？')) {
-                    startGame();
+                    resetGame();
                 } else {
                     gridSizeSelect.value = gridSize;
                 }
+            } else {
+                resetGame();
             }
         });
 
