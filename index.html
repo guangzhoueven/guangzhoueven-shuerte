@@ -518,17 +518,19 @@
          * @param {Event} e - 点击事件对象
          */
         function handleCellClick(e) {
-            // 如果游戏未开始且未暂停，自动开始游戏
+            const clickedNumber = parseInt(e.target.dataset.number);
+            const cell = e.target;
+
+            // 如果游戏未开始且未暂停，检查是否点击了数字1
             if (!gameStarted && !isPaused) {
-                const clickedNumber = parseInt(e.target.dataset.number);
-                startGame(clickedNumber);
+                if (clickedNumber === 1) {
+                    startGame(1);
+                }
+                // 点击的不是1，不做任何反应
                 return;
             }
 
             if (!gameStarted || isPaused) return;
-
-            const clickedNumber = parseInt(e.target.dataset.number);
-            const cell = e.target;
 
             if (clickedNumber === currentNumber) {
                 // 正确点击
@@ -557,13 +559,18 @@
         /**
          * 显示错误提示消息
          * @param {number} wrongNumber - 错误点击的数字
+         * @param {boolean} gameNotStarted - 游戏是否未开始
          */
-        function showError(wrongNumber) {
+        function showError(wrongNumber, gameNotStarted = false) {
             const errorMsg = document.createElement('div');
             errorMsg.className = 'error-message';
-            errorMsg.textContent = `错误！应该点击 ${currentNumber}，你点击了 ${wrongNumber}`;
+            if (gameNotStarted) {
+                errorMsg.textContent = `游戏未开始！请先点击数字 1 开始`;
+            } else {
+                errorMsg.textContent = `错误！应该点击 ${currentNumber}，你点击了 ${wrongNumber}`;
+            }
             document.body.appendChild(errorMsg);
-            
+
             setTimeout(() => {
                 errorMsg.remove();
             }, 2000);
