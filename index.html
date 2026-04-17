@@ -3,10 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="舒尔特方格 - 专业的注意力训练工具，支持多种方格大小、计时功能和暂停功能">
-    <meta name="keywords" content="舒尔特方格,注意力训练,认知训练">
-    <title>舒尔特方格 - 注意力训练</title>
+    <meta name="description" content="舒尔特方格 - 增强版注意力训练">
+    <meta name="keywords" content="舒尔特方格,注意力训练,认知训练,专注力">
+    <title>舒尔特方格 - 增强版注意力训练</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ==================== CSS 变量定义 ==================== */
+        :root {
+            /* 浅色模式默认主题色 */
+            --primary-color: #667eea;
+            --primary-dark: #764ba2;
+            --secondary-color: #f093fb;
+            --secondary-dark: #f5576c;
+            --success-color: #11998e;
+            --success-light: #38ef7d;
+            --error-color: #eb3349;
+            --error-light: #f45c43;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f7fa;
+            --bg-tertiary: #c3cfe2;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.2);
+            --shadow-button: rgba(102, 126, 234, 0.4);
+            --shadow-error: rgba(235, 51, 73, 0.4);
+            --shadow-success: rgba(17, 153, 142, 0.4);
+            --border-radius: 12px;
+            --border-radius-large: 24px;
+            --transition: all 0.3s ease;
+        }
+
+        /* 深色模式 */
+        .dark-mode {
+            --primary-color: #8190e0;
+            --primary-dark: #9f7aea;
+            --secondary-color: #f093fb;
+            --secondary-dark: #f5576c;
+            --success-color: #38b2ac;
+            --success-light: #48bb78;
+            --error-color: #f56565;
+            --error-light: #fc8181;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.4);
+            --shadow-button: rgba(129, 144, 224, 0.3);
+            --shadow-error: rgba(245, 101, 101, 0.3);
+            --shadow-success: rgba(56, 178, 172, 0.3);
+        }
+
         /* ==================== 基础样式 ==================== */
         * {
             margin: 0;
@@ -16,24 +65,31 @@
 
         body {
             font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: var(--text-primary);
+            transition: background 0.5s ease;
         }
 
         /* ==================== 主容器 ==================== */
         .container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius-large);
+            box-shadow: 0 20px 60px var(--shadow-color);
             padding: 30px;
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
             animation: fadeIn 0.5s ease-out;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dark-mode .container {
+            background: rgba(26, 32, 44, 0.95);
         }
 
         @keyframes fadeIn {
@@ -47,13 +103,86 @@
             }
         }
 
-        /* ==================== 标题 ==================== */
-        h1 {
-            text-align: center;
-            color: #2d3748;
+        /* ==================== 标题和设置区 ==================== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--text-primary);
             font-size: 36px;
             font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .settings-toggle {
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+            font-size: 24px;
+        }
+
+        .settings-toggle:hover {
+            transform: rotate(90deg);
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        /* ==================== 设置面板 ==================== */
+        .settings-panel {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            display: none;
+            transition: var(--transition);
+        }
+
+        .settings-panel.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-group label {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.3s ease;
         }
 
         /* ==================== 控制区 ==================== */
@@ -72,47 +201,53 @@
         }
 
         .control-group label {
-            color: #4a5568;
+            color: var(--text-secondary);
             font-weight: 600;
             font-size: 20px;
             min-width: 100px;
+            transition: color 0.3s ease;
         }
 
         /* ==================== 按钮和选择器 ==================== */
         select, button {
             padding: 15px 25px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            color: var(--text-primary);
         }
 
         select {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-            color: #000000;
+            background: var(--bg-secondary);
             appearance: none;
             padding-right: 40px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 15px center;
-            border: 2px solid #f093fb;
+            border: 2px solid var(--secondary-color);
+            transition: var(--transition);
+        }
+
+        .dark-mode select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0aec0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
         }
 
         select option {
-            background: #ffffff;
-            color: #000000;
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         select:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
-            border-color: #f5576c;
+            box-shadow: 0 5px 20px var(--shadow-button);
+            border-color: var(--secondary-dark);
         }
 
         .btn-start, .btn-pause {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
             width: 100%;
             font-size: 22px;
@@ -121,7 +256,7 @@
 
         .btn-start:hover, .btn-pause:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px var(--shadow-button);
         }
 
         .btn-start:active, .btn-pause:active {
@@ -147,24 +282,61 @@
             box-shadow: none;
         }
 
-        /* ==================== 计时器 ==================== */
+        /* ==================== 计时器和统计区 ==================== */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
         .timer {
             text-align: center;
             font-size: 56px;
             font-weight: 700;
-            color: #667eea;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
             font-family: 'Courier New', monospace;
+            transition: color 0.3s ease;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            transition: background 0.3s ease;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
         }
 
         .best-time {
             text-align: center;
             font-size: 20px;
             font-weight: 600;
-            color: #667eea;
+            color: var(--primary-color);
             margin-bottom: 15px;
             font-family: 'Courier New', monospace;
+            transition: color 0.3s ease;
         }
 
         /* ==================== 方格容器 ==================== */
@@ -173,28 +345,29 @@
             gap: 12px;
             margin: 20px 0;
             justify-content: center;
+            transition: opacity 0.3s ease;
         }
 
         .grid-cell {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
             border: none;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             font-size: 28px;
             font-weight: 700;
-            color: #2d3748;
+            color: var(--text-primary);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 70px;
             aspect-ratio: 1;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px var(--shadow-color);
         }
 
         .grid-cell:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 15px var(--shadow-hover);
         }
 
         .grid-cell:active {
@@ -202,37 +375,25 @@
         }
 
         .grid-cell.correct {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-light) 100%);
             color: white;
             animation: correctPulse 0.4s ease-out;
         }
 
         .grid-cell.wrong {
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            background: linear-gradient(135deg, var(--error-color) 0%, var(--error-light) 100%);
             color: white;
             animation: shake 0.4s ease-out;
-        }
-
-        /* ==================== 动画效果 ==================== */
-        @keyframes correctPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
         }
 
         /* ==================== 状态提示 ==================== */
         .status {
             text-align: center;
             font-size: 22px;
-            color: #4a5568;
+            color: var(--text-secondary);
             margin-bottom: 15px;
             font-weight: 500;
+            transition: color 0.3s ease;
         }
 
         /* ==================== 消息提示 ==================== */
@@ -241,13 +402,13 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            background: linear-gradient(135deg, var(--error-color) 0%, var(--error-light) 100%);
             color: white;
             padding: 18px 35px;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             font-weight: 600;
             font-size: 22px;
-            box-shadow: 0 10px 30px rgba(235, 51, 73, 0.4);
+            box-shadow: 0 10px 30px var(--shadow-error);
             animation: slideDown 0.3s ease-out, slideUp 0.3s ease-out 1.7s forwards;
             z-index: 1000;
         }
@@ -279,24 +440,28 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-light) 100%);
             color: white;
             padding: 50px 70px;
-            border-radius: 24px;
+            border-radius: var(--border-radius-large);
             font-weight: 700;
             font-size: 28px;
-            box-shadow: 0 20px 60px rgba(17, 153, 142, 0.4);
+            box-shadow: 0 20px 60px var(--shadow-success);
             text-align: center;
             z-index: 1000;
             animation: popIn 0.5s ease-out;
         }
 
         .grid-size-text {
-            color: #000000;
+            color: var(--text-primary);
             background: rgba(255, 255, 255, 0.9);
             padding: 5px 15px;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             display: inline-block;
+        }
+
+        .dark-mode .grid-size-text {
+            background: rgba(45, 55, 72, 0.9);
         }
 
         @keyframes popIn {
@@ -320,7 +485,256 @@
             z-index: 999;
         }
 
+        /* ==================== 成就徽章 ==================== */
+        .achievement {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+        }
+
+        .achievement.show {
+            transform: translateX(0);
+        }
+
+        .achievement-icon {
+            font-size: 24px;
+        }
+
+        /* ==================== 历史记录 ==================== */
+        .history-btn {
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .history-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .history-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-large);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px var(--shadow-color);
+            z-index: 1001;
+            display: none;
+            transition: var(--transition);
+        }
+
+        .history-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-header h2 {
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--error-color);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .history-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .history-stats {
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .history-time {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+
+        /* ==================== 动画效果 ==================== */
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* 无动画模式 */
+        .no-animations .grid-cell.correct,
+        .no-animations .grid-cell.wrong {
+            animation: none;
+        }
+
+        .no-animations .success-message,
+        .no-animations .error-message,
+        .no-animations .achievement,
+        .no-animations .settings-panel.active,
+        .no-animations .container {
+            animation: none;
+        }
+
+        /* ==================== 开关样式 ==================== */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:focus + .toggle-slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* ==================== 主题颜色选择器 ==================== */
+        .theme-colors {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .theme-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 3px solid transparent;
+        }
+
+        .theme-color:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-color.active {
+            border-color: var(--text-primary);
+        }
+
         /* ==================== 响应式设计 ==================== */
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -344,6 +758,12 @@
                 padding: 30px 40px;
                 font-size: 22px;
             }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
         }
 
         @media (max-width: 400px) {
@@ -351,14 +771,79 @@
                 font-size: 20px;
                 min-height: 50px;
             }
+
+            .button-row {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <!-- 主容器 -->
     <div class="container">
-        <h1>舒尔特方格</h1>
+        <!-- 标题和设置按钮 -->
+        <div class="header">
+            <h1>舒尔特方格</h1>
+            <button class="settings-toggle" id="settingsToggle">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
         
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-grid">
+                <!-- 深色模式 -->
+                <div class="setting-group">
+                    <label for="darkModeToggle">深色模式</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <!-- 声音效果 -->
+                <div class="setting-group">
+                    <label for="soundToggle">声音效果</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="soundToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <!-- 动画效果 -->
+                <div class="setting-group">
+                    <label for="animationToggle">动画效果</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="animationToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <!-- 内容类型 -->
+                <div class="setting-group">
+                    <label for="contentType">内容类型</label>
+                    <select id="contentType">
+                        <option value="numbers">数字</option>
+                        <option value="letters">字母</option>
+                        <option value="chinese">汉字</option>
+                    </select>
+                </div>
+                
+                <!-- 主题颜色 -->
+                <div class="setting-group">
+                    <label>主题颜色</label>
+                    <div class="theme-colors">
+                        <div class="theme-color active" data-theme="default" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <div class="theme-color" data-theme="blue" style="background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);"></div>
+                        <div class="theme-color" data-theme="green" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);"></div>
+                        <div class="theme-color" data-theme="purple" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <div class="theme-color" data-theme="pink" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                        <div class="theme-color" data-theme="orange" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 控制区 -->
         <div class="controls">
             <div class="control-group">
@@ -373,11 +858,6 @@
                     <option value="8">8 × 8</option>
                     <option value="9">9 × 9</option>
                     <option value="10">10 × 10</option>
-                    <option value="11">11 × 11</option>
-                    <option value="12">12 × 12</option>
-                    <option value="13">13 × 13</option>
-                    <option value="14">14 × 14</option>
-                    <option value="15">15 × 15</option>
                 </select>
             </div>
             <div class="button-row">
@@ -386,17 +866,58 @@
             </div>
         </div>
 
-        <!-- 计时器 -->
-        <div class="timer" id="timer">00:00:00</div>
-
-        <!-- 最短用时 -->
-        <div class="best-time" id="bestTime">最短用时: --:--:--</div>
+        <!-- 计时器和统计 -->
+        <div class="stats-container">
+            <div>
+                <div class="timer" id="timer">00:00:00</div>
+                <div class="best-time" id="bestTime">最短用时: --:--:--</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">今日完成:</span>
+                    <span class="stat-value" id="todayGames">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">总完成数:</span>
+                    <span class="stat-value" id="totalGames">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">平均用时:</span>
+                    <span class="stat-value" id="avgTime">--:--:--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">成就数:</span>
+                    <span class="stat-value" id="achievements">0</span>
+                </div>
+            </div>
+        </div>
 
         <!-- 状态提示 -->
         <div class="status" id="status">点击任意数字开始训练</div>
         
         <!-- 方格容器 -->
         <div class="grid-container" id="grid"></div>
+
+        <!-- 历史记录按钮 -->
+        <button class="history-btn" id="historyBtn">查看历史记录</button>
+    </div>
+
+    <!-- 历史记录面板 -->
+    <div class="overlay" id="historyOverlay" style="display: none;"></div>
+    <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <h2>历史记录</h2>
+            <button class="close-btn" id="closeHistoryBtn">&times;</button>
+        </div>
+        <div id="historyList">
+            <!-- 历史记录将在这里动态生成 -->
+        </div>
+    </div>
+
+    <!-- 成就提示 -->
+    <div class="achievement" id="achievement">
+        <div class="achievement-icon"><i class="fas fa-trophy"></i></div>
+        <div class="achievement-text">新成就解锁！</div>
     </div>
 
     <script>
@@ -408,6 +929,39 @@
         let gameStarted = false;        // 游戏是否已开始
         let isPaused = false;           // 是否暂停
         let gridSize = 3;               // 方格大小
+        let contentType = 'numbers';    // 内容类型：numbers, letters, chinese
+        let soundEnabled = true;        // 声音效果开关
+        let animationEnabled = true;    // 动画效果开关
+        let darkModeEnabled = false;    // 深色模式开关
+        let settingsVisible = false;    // 设置面板是否可见
+
+        // ==================== 统计数据 ====================
+        let stats = {
+            todayGames: 0,      // 今日完成游戏数
+            totalGames: 0,      // 总完成游戏数
+            totalTime: 0,       // 总用时（毫秒）
+            achievements: []    // 已解锁成就
+        };
+
+        // ==================== 成就定义 ====================
+        const achievements = [
+            { id: 'first_game', name: '初次尝试', description: '完成第一局游戏' },
+            { id: 'speed_demon', name: '电光火石', description: '3x3方格用时少于5秒' },
+            { id: 'perfectionist', name: '完美主义', description: '无错误完成一局游戏' },
+            { id: 'variety_master', name: '多面手', description: '尝试所有内容类型' },
+            { id: 'size_champion', name: '大小通吃', description: '完成5x5及以上方格' },
+            { id: 'persistent', name: '坚持不懈', description: '一天内完成10局游戏' },
+            { id: 'master', name: '舒尔特大师', description: '完成10x10方格' }
+        ];
+
+        // ==================== 汉字集合 ====================
+        const chineseCharacters = [
+            '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+            '天', '地', '人', '日', '月', '水', '火', '山', '石', '田',
+            '东', '南', '西', '北', '中', '上', '下', '左', '右', '前',
+            '后', '大', '小', '多', '少', '长', '短', '高', '低', '远',
+            '近', '快', '慢', '好', '坏', '真', '假', '美', '丑', '善'
+        ];
 
         // ==================== DOM 元素引用 ====================
         const timerDisplay = document.getElementById('timer');
@@ -417,25 +971,65 @@
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const gridSizeSelect = document.getElementById('gridSize');
+        const settingsToggle = document.getElementById('settingsToggle');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const soundToggle = document.getElementById('soundToggle');
+        const animationToggle = document.getElementById('animationToggle');
+        const contentTypeSelect = document.getElementById('contentType');
+        const historyBtn = document.getElementById('historyBtn');
+        const historyPanel = document.getElementById('historyPanel');
+        const historyOverlay = document.getElementById('historyOverlay');
+        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+        const historyList = document.getElementById('historyList');
+        const achievementElement = document.getElementById('achievement');
+        const achievementText = achievementElement.querySelector('.achievement-text');
+        
+        // 统计显示元素
+        const todayGamesDisplay = document.getElementById('todayGames');
+        const totalGamesDisplay = document.getElementById('totalGames');
+        const avgTimeDisplay = document.getElementById('avgTime');
+        const achievementsDisplay = document.getElementById('achievements');
+
+        // ==================== 音频对象 ====================
+        const sounds = {
+            correct: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3'),
+            wrong: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3'),
+            complete: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3'),
+            achievement: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3')
+        };
 
         // ==================== 工具函数 ====================
 
         /**
+         * 播放音效
+         * @param {string} soundName - 音效名称
+         */
+        function playSound(soundName) {
+            if (soundEnabled && sounds[soundName]) {
+                sounds[soundName].currentTime = 0;
+                sounds[soundName].play().catch(e => console.log('Audio play failed:', e));
+            }
+        }
+
+        /**
          * 获取当前方格大小的localStorage键名
          * @param {number} size - 方格大小
+         * @param {string} type - 内容类型
          * @returns {string} - localStorage键名
          */
-        function getBestTimeKey(size) {
-            return `schulteGrid_bestTime_${size}x${size}`;
+        function getBestTimeKey(size, type) {
+            return `schulteGrid_bestTime_${size}x${size}_${type}`;
         }
 
         /**
          * 读取最短用时
          * @param {number} size - 方格大小
+         * @param {string} type - 内容类型
          * @returns {number|null} - 最短用时（毫秒），如果没有记录则返回null
          */
-        function getBestTime(size) {
-            const key = getBestTimeKey(size);
+        function getBestTime(size, type) {
+            const key = getBestTimeKey(size, type);
             const savedTime = localStorage.getItem(key);
             return savedTime ? parseInt(savedTime) : null;
         }
@@ -443,9 +1037,10 @@
         /**
          * 更新最短用时显示
          * @param {number} size - 方格大小
+         * @param {string} type - 内容类型
          */
-        function updateBestTimeDisplay(size) {
-            const bestTime = getBestTime(size);
+        function updateBestTimeDisplay(size, type) {
+            const bestTime = getBestTime(size, type);
             if (bestTime) {
                 const minutes = Math.floor(bestTime / 60000);
                 const seconds = Math.floor((bestTime % 60000) / 1000);
@@ -459,55 +1054,332 @@
         /**
          * 保存最短用时
          * @param {number} size - 方格大小
+         * @param {string} type - 内容类型
          * @param {number} time - 用时（毫秒）
+         * @returns {boolean} - 是否是新纪录
          */
-        function saveBestTime(size, time) {
-            const key = getBestTimeKey(size);
-            const currentBest = getBestTime(size);
+        function saveBestTime(size, type, time) {
+            const key = getBestTimeKey(size, type);
+            const currentBest = getBestTime(size, type);
             if (!currentBest || time < currentBest) {
                 localStorage.setItem(key, time.toString());
-                updateBestTimeDisplay(size);
+                updateBestTimeDisplay(size, type);
                 return true; // 新纪录
             }
             return false; // 不是新纪录
         }
 
         /**
+         * 格式化时间
+         * @param {number} time - 时间（毫秒）
+         * @returns {string} - 格式化后的时间字符串
+         */
+        function formatTime(time) {
+            const minutes = Math.floor(time / 60000);
+            const seconds = Math.floor((time % 60000) / 1000);
+            const milliseconds = Math.floor((time % 1000) / 10);
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+        }
+
+        /**
          * 生成随机数组（使用 Fisher-Yates 洗牌算法）
          * @param {number} size - 方格大小
-         * @returns {number[]} - 随机排列的数字数组
+         * @param {string} type - 内容类型
+         * @returns {Array} - 随机排列的内容数组
          */
-        function generateNumbers(size) {
-            const numbers = [];
-            for (let i = 1; i <= size * size; i++) {
-                numbers.push(i);
+        function generateContent(size, type) {
+            const total = size * size;
+            let content = [];
+
+            switch (type) {
+                case 'numbers':
+                    for (let i = 1; i <= total; i++) {
+                        content.push(i.toString());
+                    }
+                    break;
+                case 'letters':
+                    for (let i = 0; i < total && i < 26; i++) {
+                        content.push(String.fromCharCode(65 + i)); // A-Z
+                    }
+                    break;
+                case 'chinese':
+                    content = chineseCharacters.slice(0, total);
+                    break;
             }
+
             // Fisher-Yates 洗牌算法
-            for (let i = numbers.length - 1; i > 0; i--) {
+            for (let i = content.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+                [content[i], content[j]] = [content[j], content[i]];
             }
-            return numbers;
+
+            return content;
+        }
+
+        /**
+         * 获取下一个目标内容
+         * @param {number} current - 当前序号
+         * @param {string} type - 内容类型
+         * @returns {string} - 下一个目标内容
+         */
+        function getNextTarget(current, type) {
+            switch (type) {
+                case 'numbers':
+                    return current.toString();
+                case 'letters':
+                    return String.fromCharCode(64 + current); // A=1, B=2...
+                case 'chinese':
+                    return chineseCharacters[current - 1];
+                default:
+                    return current.toString();
+            }
         }
 
         /**
          * 创建方格网格
          * @param {number} size - 方格大小
+         * @param {string} type - 内容类型
          */
-        function createGrid(size) {
-            const numbers = generateNumbers(size);
+        function createGrid(size, type) {
+            const content = generateContent(size, type);
             gridContainer.innerHTML = '';
             
             // 设置网格列数
             gridContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
             
-            numbers.forEach((num) => {
+            content.forEach((item) => {
                 const cell = document.createElement('button');
                 cell.className = 'grid-cell';
-                cell.textContent = num;
-                cell.dataset.number = num;
+                cell.textContent = item;
+                cell.dataset.content = item;
                 cell.addEventListener('click', handleCellClick);
                 gridContainer.appendChild(cell);
+            });
+        }
+
+        /**
+         * 保存统计数据
+         */
+        function saveStats() {
+            localStorage.setItem('schulteGrid_stats', JSON.stringify(stats));
+        }
+
+        /**
+         * 加载统计数据
+         */
+        function loadStats() {
+            const savedStats = localStorage.getItem('schulteGrid_stats');
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+            
+            // 检查今日日期，重置今日游戏数
+            const lastDate = localStorage.getItem('schulteGrid_lastDate');
+            const today = new Date().toDateString();
+            if (lastDate !== today) {
+                stats.todayGames = 0;
+                localStorage.setItem('schulteGrid_lastDate', today);
+            }
+            
+            updateStatsDisplay();
+        }
+
+        /**
+         * 更新统计显示
+         */
+        function updateStatsDisplay() {
+            todayGamesDisplay.textContent = stats.todayGames;
+            totalGamesDisplay.textContent = stats.totalGames;
+            
+            // 计算平均用时
+            const avgTime = stats.totalGames > 0 ? Math.floor(stats.totalTime / stats.totalGames) : 0;
+            avgTimeDisplay.textContent = avgTime > 0 ? formatTime(avgTime) : '--:--:--';
+            
+            // 显示成就数量
+            achievementsDisplay.textContent = stats.achievements.length;
+        }
+
+        /**
+         * 解锁成就
+         * @param {string} achievementId - 成就ID
+         */
+        function unlockAchievement(achievementId) {
+            if (!stats.achievements.includes(achievementId)) {
+                stats.achievements.push(achievementId);
+                saveStats();
+                updateStatsDisplay();
+                
+                // 显示成就解锁提示
+                const achievement = achievements.find(a => a.id === achievementId);
+                if (achievement) {
+                    achievementText.textContent = `解锁成就: ${achievement.name}`;
+                    achievementElement.classList.add('show');
+                    playSound('achievement');
+                    
+                    setTimeout(() => {
+                        achievementElement.classList.remove('show');
+                    }, 3000);
+                }
+            }
+        }
+
+        /**
+         * 检查成就
+         * @param {Object} gameResult - 游戏结果
+         */
+        function checkAchievements(gameResult) {
+            // 初次尝试
+            if (stats.totalGames === 1) {
+                unlockAchievement('first_game');
+            }
+            
+            // 电光火石 (3x3 < 5秒)
+            if (gameResult.size === 3 && gameResult.time < 5000) {
+                unlockAchievement('speed_demon');
+            }
+            
+            // 完美主义 (无错误)
+            if (gameResult.errors === 0) {
+                unlockAchievement('perfectionist');
+            }
+            
+            // 多面手 (尝试所有内容类型)
+            const playedTypes = JSON.parse(localStorage.getItem('schulteGrid_playedTypes') || '[]');
+            if (playedTypes.includes('numbers') && playedTypes.includes('letters') && playedTypes.includes('chinese')) {
+                unlockAchievement('variety_master');
+            }
+            
+            // 大小通吃 (5x5及以上)
+            if (gameResult.size >= 5) {
+                unlockAchievement('size_champion');
+            }
+            
+            // 坚持不懈 (一天10局)
+            if (stats.todayGames >= 10) {
+                unlockAchievement('persistent');
+            }
+            
+            // 舒尔特大师 (10x10)
+            if (gameResult.size >= 10) {
+                unlockAchievement('master');
+            }
+        }
+
+        /**
+         * 保存游戏历史
+         * @param {Object} gameResult - 游戏结果
+         */
+        function saveGameHistory(gameResult) {
+            const history = JSON.parse(localStorage.getItem('schulteGrid_history') || '[]');
+            
+            // 添加新记录
+            history.unshift({
+                date: new Date().toISOString(),
+                size: gameResult.size,
+                type: gameResult.type,
+                time: gameResult.time,
+                errors: gameResult.errors,
+                isNewRecord: gameResult.isNewRecord
+            });
+            
+            // 只保留最近50条记录
+            if (history.length > 50) {
+                history.pop();
+            }
+            
+            localStorage.setItem('schulteGrid_history', JSON.stringify(history));
+        }
+
+        /**
+         * 显示历史记录
+         */
+        function showHistory() {
+            const history = JSON.parse(localStorage.getItem('schulteGrid_history') || '[]');
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">暂无历史记录</p>';
+                historyPanel.classList.add('active');
+                historyOverlay.style.display = 'block';
+                return;
+            }
+            
+            history.forEach(record => {
+                const date = new Date(record.date);
+                const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div class="history-details">
+                        <div class="history-date">${dateStr}</div>
+                        <div class="history-stats">${record.size}×${record.size} ${getTypeName(record.type)} ${record.errors > 0 ? `(错误: ${record.errors})` : ''} ${record.isNewRecord ? '<span style="color: gold;">新纪录!</span>' : ''}</div>
+                    </div>
+                    <div class="history-time">${formatTime(record.time)}</div>
+                `;
+                historyList.appendChild(item);
+            });
+            
+            historyPanel.classList.add('active');
+            historyOverlay.style.display = 'block';
+        }
+
+        /**
+         * 获取内容类型名称
+         * @param {string} type - 内容类型
+         * @returns {string} - 类型名称
+         */
+        function getTypeName(type) {
+            switch (type) {
+                case 'numbers': return '数字';
+                case 'letters': return '字母';
+                case 'chinese': return '汉字';
+                default: return '数字';
+            }
+        }
+
+        /**
+         * 应用主题颜色
+         * @param {string} theme - 主题名称
+         */
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            
+            switch (theme) {
+                case 'blue':
+                    root.style.setProperty('--primary-color', '#36d1dc');
+                    root.style.setProperty('--primary-dark', '#5b86e5');
+                    break;
+                case 'green':
+                    root.style.setProperty('--primary-color', '#11998e');
+                    root.style.setProperty('--primary-dark', '#38ef7d');
+                    break;
+                case 'purple':
+                    root.style.setProperty('--primary-color', '#667eea');
+                    root.style.setProperty('--primary-dark', '#764ba2');
+                    break;
+                case 'pink':
+                    root.style.setProperty('--primary-color', '#f093fb');
+                    root.style.setProperty('--primary-dark', '#f5576c');
+                    break;
+                case 'orange':
+                    root.style.setProperty('--primary-color', '#fa709a');
+                    root.style.setProperty('--primary-dark', '#fee140');
+                    break;
+                default: // default
+                    root.style.setProperty('--primary-color', '#667eea');
+                    root.style.setProperty('--primary-dark', '#764ba2');
+            }
+            
+            // 保存主题设置
+            localStorage.setItem('schulteGrid_theme', theme);
+            
+            // 更新主题颜色选择器状态
+            document.querySelectorAll('.theme-color').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.theme === theme) {
+                    el.classList.add('active');
+                }
             });
         }
 
@@ -518,24 +1390,26 @@
          * @param {Event} e - 点击事件对象
          */
         function handleCellClick(e) {
-            const clickedNumber = parseInt(e.target.dataset.number);
+            const clickedContent = e.target.dataset.content;
             const cell = e.target;
+            const targetContent = getNextTarget(currentNumber, contentType);
 
-            // 如果游戏未开始且未暂停，检查是否点击了数字1
+            // 如果游戏未开始且未暂停，检查是否点击了第一个内容
             if (!gameStarted && !isPaused) {
-                if (clickedNumber === 1) {
-                    startGame(1);
+                if (clickedContent === targetContent) {
+                    startGame(targetContent);
                 }
-                // 点击的不是1，不做任何反应
+                // 点击的不是第一个内容，不做任何反应
                 return;
             }
 
             if (!gameStarted || isPaused) return;
 
-            if (clickedNumber === currentNumber) {
+            if (clickedContent === targetContent) {
                 // 正确点击
                 cell.classList.add('correct');
                 cell.disabled = true;
+                playSound('correct');
 
                 const totalCells = gridSize * gridSize;
                 if (currentNumber === totalCells) {
@@ -543,12 +1417,13 @@
                     endGame();
                 } else {
                     currentNumber++;
-                    statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+                    statusDisplay.textContent = `请点击: ${getNextTarget(currentNumber, contentType)}`;
                 }
             } else {
                 // 错误点击
                 cell.classList.add('wrong');
-                showError(clickedNumber);
+                playSound('wrong');
+                showError(clickedContent);
 
                 setTimeout(() => {
                     cell.classList.remove('wrong');
@@ -558,17 +1433,12 @@
 
         /**
          * 显示错误提示消息
-         * @param {number} wrongNumber - 错误点击的数字
-         * @param {boolean} gameNotStarted - 游戏是否未开始
+         * @param {string} wrongContent - 错误点击的内容
          */
-        function showError(wrongNumber, gameNotStarted = false) {
+        function showError(wrongContent) {
             const errorMsg = document.createElement('div');
             errorMsg.className = 'error-message';
-            if (gameNotStarted) {
-                errorMsg.textContent = `游戏未开始！请先点击数字 1 开始`;
-            } else {
-                errorMsg.textContent = `错误！应该点击 ${currentNumber}，你点击了 ${wrongNumber}`;
-            }
+            errorMsg.textContent = `错误！应该点击 ${getNextTarget(currentNumber, contentType)}，你点击了 ${wrongContent}`;
             document.body.appendChild(errorMsg);
 
             setTimeout(() => {
@@ -583,12 +1453,7 @@
             if (isPaused) return;
             
             const elapsed = Date.now() - startTime - pausedTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            const milliseconds = Math.floor((elapsed % 1000) / 10);
-            
-            timerDisplay.textContent =
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            timerDisplay.textContent = formatTime(elapsed);
         }
 
         /**
@@ -616,16 +1481,16 @@
             startTime = Date.now() - pausedTime;
             
             pauseBtn.textContent = '暂停';
-            statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+            statusDisplay.textContent = `请点击: ${getNextTarget(currentNumber, contentType)}`;
             gridContainer.style.opacity = '1';
             gridContainer.style.pointerEvents = 'auto';
         }
 
         /**
          * 开始游戏（不打乱方格，开始计时）
-         * @param {number} firstClickedNumber - 用户首次点击的数字（可选）
+         * @param {string} firstClickedContent - 用户首次点击的内容
          */
-        function startGame(firstClickedNumber) {
+        function startGame(firstClickedContent) {
             currentNumber = 1;
             gameStarted = true;
             isPaused = false;
@@ -634,7 +1499,7 @@
 
             pauseBtn.textContent = '暂停';
             pauseBtn.disabled = false;
-            statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+            statusDisplay.textContent = `请点击: ${getNextTarget(currentNumber, contentType)}`;
             timerDisplay.textContent = '00:00:00';
             gridContainer.style.opacity = '1';
             gridContainer.style.pointerEvents = 'auto';
@@ -651,10 +1516,10 @@
             }
             timerInterval = setInterval(updateTimer, 10);
 
-            // 如果用户首次点击的是1，自动标记为正确
-            if (firstClickedNumber === 1) {
+            // 如果用户首次点击的是第一个内容，自动标记为正确
+            if (firstClickedContent === getNextTarget(currentNumber, contentType)) {
                 cells.forEach(cell => {
-                    if (parseInt(cell.dataset.number) === 1) {
+                    if (cell.dataset.content === firstClickedContent) {
                         cell.classList.add('correct');
                         cell.disabled = true;
                     }
@@ -666,8 +1531,15 @@
                     endGame();
                 } else {
                     currentNumber++;
-                    statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+                    statusDisplay.textContent = `请点击: ${getNextTarget(currentNumber, contentType)}`;
                 }
+            }
+
+            // 记录已玩过的内容类型
+            const playedTypes = JSON.parse(localStorage.getItem('schulteGrid_playedTypes') || '[]');
+            if (!playedTypes.includes(contentType)) {
+                playedTypes.push(contentType);
+                localStorage.setItem('schulteGrid_playedTypes', JSON.stringify(playedTypes));
             }
         }
 
@@ -676,6 +1548,7 @@
          */
         function resetGame() {
             gridSize = parseInt(gridSizeSelect.value);
+            contentType = contentTypeSelect.value;
             currentNumber = 1;
             gameStarted = false;
             isPaused = false;
@@ -684,7 +1557,7 @@
 
             pauseBtn.textContent = '暂停';
             pauseBtn.disabled = true;
-            statusDisplay.textContent = '点击任意数字开始训练';
+            statusDisplay.textContent = `点击${getNextTarget(1, contentType)}开始训练`;
             timerDisplay.textContent = '00:00:00';
             gridContainer.style.opacity = '1';
             gridContainer.style.pointerEvents = 'auto';
@@ -696,8 +1569,8 @@
             }
 
             // 重新打乱方格
-            createGrid(gridSize);
-            updateBestTimeDisplay(gridSize);
+            createGrid(gridSize, contentType);
+            updateBestTimeDisplay(gridSize, contentType);
         }
 
         /**
@@ -711,13 +1584,31 @@
 
             // 计算实际用时（毫秒）
             const elapsed = Date.now() - startTime - pausedTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            const milliseconds = Math.floor((elapsed % 1000) / 10);
-            const finalTimeText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            const finalTimeText = formatTime(elapsed);
 
             // 保存最短用时并检查是否打破记录
-            const isNewRecord = saveBestTime(gridSize, elapsed);
+            const isNewRecord = saveBestTime(gridSize, contentType, elapsed);
+            playSound('complete');
+
+            // 更新统计数据
+            stats.todayGames++;
+            stats.totalGames++;
+            stats.totalTime += elapsed;
+            saveStats();
+            updateStatsDisplay();
+
+            // 保存游戏历史
+            const gameResult = {
+                size: gridSize,
+                type: contentType,
+                time: elapsed,
+                errors: 0, // 简化版，实际应统计错误次数
+                isNewRecord: isNewRecord
+            };
+            saveGameHistory(gameResult);
+
+            // 检查成就
+            checkAchievements(gameResult);
 
             // 显示成功消息
             const overlay = document.createElement('div');
@@ -728,7 +1619,8 @@
             successMsg.innerHTML = `
                 恭喜完成！<br><br>
                 用时: ${finalTimeText}<br><br>
-                方格大小: <span class="grid-size-text">${gridSize}×${gridSize}</span>${isNewRecord ? '<br><br><span style="color: #ffeb3b; font-size: 0.9em;">打破纪录！</span>' : ''}
+                方格大小: <span class="grid-size-text">${gridSize}×${gridSize}</span><br>
+                内容类型: <span class="grid-size-text">${getTypeName(contentType)}</span>${isNewRecord ? '<br><br><span style="color: #ffeb3b; font-size: 0.9em;">打破纪录！</span>' : ''}
             `;
 
             document.body.appendChild(overlay);
@@ -748,6 +1640,39 @@
         }
 
         // ==================== 事件监听 ====================
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载设置
+            const savedTheme = localStorage.getItem('schulteGrid_theme') || 'default';
+            applyTheme(savedTheme);
+            
+            darkModeEnabled = localStorage.getItem('schulteGrid_darkMode') === 'true';
+            darkModeToggle.checked = darkModeEnabled;
+            if (darkModeEnabled) {
+                document.body.classList.add('dark-mode');
+            }
+            
+            soundEnabled = localStorage.getItem('schulteGrid_sound') !== 'false';
+            soundToggle.checked = soundEnabled;
+            
+            animationEnabled = localStorage.getItem('schulteGrid_animation') !== 'false';
+            animationToggle.checked = animationEnabled;
+            if (!animationEnabled) {
+                document.body.classList.add('no-animations');
+            }
+            
+            const savedContentType = localStorage.getItem('schulteGrid_contentType') || 'numbers';
+            contentTypeSelect.value = savedContentType;
+            contentType = savedContentType;
+            
+            // 加载统计数据
+            loadStats();
+            
+            // 初始化显示
+            createGrid(3, contentType);
+            updateBestTimeDisplay(3, contentType);
+        });
 
         // 重置按钮
         startBtn.addEventListener('click', resetGame);
@@ -774,15 +1699,83 @@
             }
         });
 
-        // ==================== 禁用右键菜单 ====================
+        // 内容类型选择器
+        contentTypeSelect.addEventListener('change', () => {
+            if (gameStarted) {
+                if (confirm('更改内容类型将重新开始游戏，确定吗？')) {
+                    resetGame();
+                } else {
+                    contentTypeSelect.value = contentType;
+                }
+            } else {
+                resetGame();
+            }
+            localStorage.setItem('schulteGrid_contentType', contentTypeSelect.value);
+        });
+
+        // 设置面板切换
+        settingsToggle.addEventListener('click', () => {
+            settingsVisible = !settingsVisible;
+            if (settingsVisible) {
+                settingsPanel.classList.add('active');
+            } else {
+                settingsPanel.classList.remove('active');
+            }
+        });
+
+        // 深色模式切换
+        darkModeToggle.addEventListener('change', () => {
+            darkModeEnabled = darkModeToggle.checked;
+            if (darkModeEnabled) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            localStorage.setItem('schulteGrid_darkMode', darkModeEnabled);
+        });
+
+        // 声音效果切换
+        soundToggle.addEventListener('change', () => {
+            soundEnabled = soundToggle.checked;
+            localStorage.setItem('schulteGrid_sound', soundEnabled);
+        });
+
+        // 动画效果切换
+        animationToggle.addEventListener('change', () => {
+            animationEnabled = animationToggle.checked;
+            if (animationEnabled) {
+                document.body.classList.remove('no-animations');
+            } else {
+                document.body.classList.add('no-animations');
+            }
+            localStorage.setItem('schulteGrid_animation', animationEnabled);
+        });
+
+        // 主题颜色选择
+        document.querySelectorAll('.theme-color').forEach(themeColor => {
+            themeColor.addEventListener('click', () => {
+                applyTheme(themeColor.dataset.theme);
+            });
+        });
+
+        // 历史记录按钮
+        historyBtn.addEventListener('click', showHistory);
+
+        // 关闭历史记录
+        closeHistoryBtn.addEventListener('click', () => {
+            historyPanel.classList.remove('active');
+            historyOverlay.style.display = 'none';
+        });
+
+        historyOverlay.addEventListener('click', () => {
+            historyPanel.classList.remove('active');
+            historyOverlay.style.display = 'none';
+        });
+
+        // 禁用右键菜单
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
-
-        // ==================== 初始化 ====================
-        // 初始化显示 3×3 方格
-        createGrid(3);
-        updateBestTimeDisplay(3);
     </script>
 </body>
 </html>

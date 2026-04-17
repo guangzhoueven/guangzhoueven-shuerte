@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="舒尔特方格 - 专业的注意力训练工具，支持多种方格大小、计时功能和暂停功能">
+    <meta name="keywords" content="舒尔特方格,注意力训练,认知训练">
+    <title>舒尔特方格 - 注意力训练</title>
+    <style>
+        /* ==================== 基础样式 ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ==================== 主容器 ==================== */
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== 标题 ==================== */
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        /* ==================== 控制区 ==================== */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .control-group label {
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 20px;
+            min-width: 100px;
+        }
+
+        /* ==================== 按钮和选择器 ==================== */
+        select, button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            color: #000000;
+            appearance: none;
+            padding-right: 40px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            border: 2px solid #f093fb;
+        }
+
+        select option {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        select:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
+            border-color: #f5576c;
+        }
+
+        .btn-start, .btn-pause {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            font-size: 22px;
+            padding: 18px;
+        }
+
+        .btn-start:hover, .btn-pause:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-start:active, .btn-pause:active {
+            transform: translateY(0);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-row button {
+            flex: 1;
+        }
+
+        .btn-pause:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-pause:disabled:hover {
+            box-shadow: none;
+        }
+
+        /* ==================== 计时器 ==================== */
+        .timer {
+            text-align: center;
+            font-size: 56px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: 'Courier New', monospace;
+        }
+
+        .best-time {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ==================== 方格容器 ==================== */
+        .grid-container {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .grid-cell {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: none;
+            border-radius: 12px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 70px;
+            aspect-ratio: 1;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .grid-cell:active {
+            transform: scale(0.95);
+        }
+
+        .grid-cell.correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            animation: correctPulse 0.4s ease-out;
+        }
+
+        .grid-cell.wrong {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            animation: shake 0.4s ease-out;
+        }
+
+        /* ==================== 动画效果 ==================== */
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* ==================== 状态提示 ==================== */
+        .status {
+            text-align: center;
+            font-size: 22px;
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        /* ==================== 消息提示 ==================== */
+        .error-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 22px;
+            box-shadow: 0 10px 30px rgba(235, 51, 73, 0.4);
+            animation: slideDown 0.3s ease-out, slideUp 0.3s ease-out 1.7s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 50px 70px;
+            border-radius: 24px;
+            font-weight: 700;
+            font-size: 28px;
+            box-shadow: 0 20px 60px rgba(17, 153, 142, 0.4);
+            text-align: center;
+            z-index: 1000;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .grid-size-text {
+            color: #000000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 15px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* ==================== 响应式设计 ==================== */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .timer {
+                font-size: 44px;
+            }
+
+            .grid-cell {
+                font-size: 24px;
+                min-height: 60px;
+            }
+
+            .success-message {
+                padding: 30px 40px;
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .grid-cell {
+                font-size: 20px;
+                min-height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主容器 -->
+    <div class="container">
+        <h1>舒尔特方格</h1>
+        
+        <!-- 控制区 -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="gridSize">方格大小:</label>
+                <select id="gridSize">
+                    <option value="2">2 × 2</option>
+                    <option value="3" selected>3 × 3</option>
+                    <option value="4">4 × 4</option>
+                    <option value="5">5 × 5</option>
+                    <option value="6">6 × 6</option>
+                    <option value="7">7 × 7</option>
+                    <option value="8">8 × 8</option>
+                    <option value="9">9 × 9</option>
+                    <option value="10">10 × 10</option>
+                    <option value="11">11 × 11</option>
+                    <option value="12">12 × 12</option>
+                    <option value="13">13 × 13</option>
+                    <option value="14">14 × 14</option>
+                    <option value="15">15 × 15</option>
+                </select>
+            </div>
+            <div class="button-row">
+                <button class="btn-start" id="startBtn">重置</button>
+                <button class="btn-pause" id="pauseBtn" disabled>暂停</button>
+            </div>
+        </div>
+
+        <!-- 计时器 -->
+        <div class="timer" id="timer">00:00:00</div>
+
+        <!-- 最短用时 -->
+        <div class="best-time" id="bestTime">最短用时: --:--:--</div>
+
+        <!-- 状态提示 -->
+        <div class="status" id="status">点击任意数字开始训练</div>
+        
+        <!-- 方格容器 -->
+        <div class="grid-container" id="grid"></div>
+    </div>
+
+    <script>
+        // ==================== 游戏状态变量 ====================
+        let currentNumber = 1;          // 当前需要点击的数字
+        let timerInterval = null;       // 计时器定时器
+        let startTime = null;           // 游戏开始时间
+        let pausedTime = 0;             // 累计暂停时间
+        let gameStarted = false;        // 游戏是否已开始
+        let isPaused = false;           // 是否暂停
+        let gridSize = 3;               // 方格大小
+
+        // ==================== DOM 元素引用 ====================
+        const timerDisplay = document.getElementById('timer');
+        const statusDisplay = document.getElementById('status');
+        const bestTimeDisplay = document.getElementById('bestTime');
+        const gridContainer = document.getElementById('grid');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const gridSizeSelect = document.getElementById('gridSize');
+
+        // ==================== 工具函数 ====================
+
+        /**
+         * 获取当前方格大小的localStorage键名
+         * @param {number} size - 方格大小
+         * @returns {string} - localStorage键名
+         */
+        function getBestTimeKey(size) {
+            return `schulteGrid_bestTime_${size}x${size}`;
+        }
+
+        /**
+         * 读取最短用时
+         * @param {number} size - 方格大小
+         * @returns {number|null} - 最短用时（毫秒），如果没有记录则返回null
+         */
+        function getBestTime(size) {
+            const key = getBestTimeKey(size);
+            const savedTime = localStorage.getItem(key);
+            return savedTime ? parseInt(savedTime) : null;
+        }
+
+        /**
+         * 更新最短用时显示
+         * @param {number} size - 方格大小
+         */
+        function updateBestTimeDisplay(size) {
+            const bestTime = getBestTime(size);
+            if (bestTime) {
+                const minutes = Math.floor(bestTime / 60000);
+                const seconds = Math.floor((bestTime % 60000) / 1000);
+                const milliseconds = Math.floor((bestTime % 1000) / 10);
+                bestTimeDisplay.textContent = `最短用时: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            } else {
+                bestTimeDisplay.textContent = '最短用时: --:--:--';
+            }
+        }
+
+        /**
+         * 保存最短用时
+         * @param {number} size - 方格大小
+         * @param {number} time - 用时（毫秒）
+         */
+        function saveBestTime(size, time) {
+            const key = getBestTimeKey(size);
+            const currentBest = getBestTime(size);
+            if (!currentBest || time < currentBest) {
+                localStorage.setItem(key, time.toString());
+                updateBestTimeDisplay(size);
+                return true; // 新纪录
+            }
+            return false; // 不是新纪录
+        }
+
+        /**
+         * 生成随机数组（使用 Fisher-Yates 洗牌算法）
+         * @param {number} size - 方格大小
+         * @returns {number[]} - 随机排列的数字数组
+         */
+        function generateNumbers(size) {
+            const numbers = [];
+            for (let i = 1; i <= size * size; i++) {
+                numbers.push(i);
+            }
+            // Fisher-Yates 洗牌算法
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+            return numbers;
+        }
+
+        /**
+         * 创建方格网格
+         * @param {number} size - 方格大小
+         */
+        function createGrid(size) {
+            const numbers = generateNumbers(size);
+            gridContainer.innerHTML = '';
+            
+            // 设置网格列数
+            gridContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            
+            numbers.forEach((num) => {
+                const cell = document.createElement('button');
+                cell.className = 'grid-cell';
+                cell.textContent = num;
+                cell.dataset.number = num;
+                cell.addEventListener('click', handleCellClick);
+                gridContainer.appendChild(cell);
+            });
+        }
+
+        // ==================== 游戏逻辑函数 ====================
+
+        /**
+         * 处理方格点击事件
+         * @param {Event} e - 点击事件对象
+         */
+        function handleCellClick(e) {
+            const clickedNumber = parseInt(e.target.dataset.number);
+            const cell = e.target;
+
+            // 如果游戏未开始且未暂停，检查是否点击了数字1
+            if (!gameStarted && !isPaused) {
+                if (clickedNumber === 1) {
+                    startGame(1);
+                }
+                // 点击的不是1，不做任何反应
+                return;
+            }
+
+            if (!gameStarted || isPaused) return;
+
+            if (clickedNumber === currentNumber) {
+                // 正确点击
+                cell.classList.add('correct');
+                cell.disabled = true;
+
+                const totalCells = gridSize * gridSize;
+                if (currentNumber === totalCells) {
+                    // 游戏完成
+                    endGame();
+                } else {
+                    currentNumber++;
+                    statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+                }
+            } else {
+                // 错误点击
+                cell.classList.add('wrong');
+                showError(clickedNumber);
+
+                setTimeout(() => {
+                    cell.classList.remove('wrong');
+                }, 400);
+            }
+        }
+
+        /**
+         * 显示错误提示消息
+         * @param {number} wrongNumber - 错误点击的数字
+         * @param {boolean} gameNotStarted - 游戏是否未开始
+         */
+        function showError(wrongNumber, gameNotStarted = false) {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            if (gameNotStarted) {
+                errorMsg.textContent = `游戏未开始！请先点击数字 1 开始`;
+            } else {
+                errorMsg.textContent = `错误！应该点击 ${currentNumber}，你点击了 ${wrongNumber}`;
+            }
+            document.body.appendChild(errorMsg);
+
+            setTimeout(() => {
+                errorMsg.remove();
+            }, 2000);
+        }
+
+        /**
+         * 更新计时器显示
+         */
+        function updateTimer() {
+            if (isPaused) return;
+            
+            const elapsed = Date.now() - startTime - pausedTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const milliseconds = Math.floor((elapsed % 1000) / 10);
+            
+            timerDisplay.textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+        }
+
+        /**
+         * 暂停游戏
+         */
+        function pauseGame() {
+            if (!gameStarted || isPaused) return;
+            
+            isPaused = true;
+            pausedTime = Date.now() - startTime - pausedTime;
+            
+            pauseBtn.textContent = '继续';
+            statusDisplay.textContent = '游戏已暂停';
+            gridContainer.style.opacity = '0.5';
+            gridContainer.style.pointerEvents = 'none';
+        }
+
+        /**
+         * 继续游戏
+         */
+        function resumeGame() {
+            if (!gameStarted || !isPaused) return;
+            
+            isPaused = false;
+            startTime = Date.now() - pausedTime;
+            
+            pauseBtn.textContent = '暂停';
+            statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+            gridContainer.style.opacity = '1';
+            gridContainer.style.pointerEvents = 'auto';
+        }
+
+        /**
+         * 开始游戏（不打乱方格，开始计时）
+         * @param {number} firstClickedNumber - 用户首次点击的数字（可选）
+         */
+        function startGame(firstClickedNumber) {
+            currentNumber = 1;
+            gameStarted = true;
+            isPaused = false;
+            pausedTime = 0;
+            startTime = Date.now();
+
+            pauseBtn.textContent = '暂停';
+            pauseBtn.disabled = false;
+            statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+            timerDisplay.textContent = '00:00:00';
+            gridContainer.style.opacity = '1';
+            gridContainer.style.pointerEvents = 'auto';
+
+            // 重置所有方格状态
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('correct', 'wrong');
+                cell.disabled = false;
+            });
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateTimer, 10);
+
+            // 如果用户首次点击的是1，自动标记为正确
+            if (firstClickedNumber === 1) {
+                cells.forEach(cell => {
+                    if (parseInt(cell.dataset.number) === 1) {
+                        cell.classList.add('correct');
+                        cell.disabled = true;
+                    }
+                });
+
+                const totalCells = gridSize * gridSize;
+                if (currentNumber === totalCells) {
+                    // 游戏完成
+                    endGame();
+                } else {
+                    currentNumber++;
+                    statusDisplay.textContent = `请点击数字: ${currentNumber}`;
+                }
+            }
+        }
+
+        /**
+         * 重置游戏（打乱方格，停止计时）
+         */
+        function resetGame() {
+            gridSize = parseInt(gridSizeSelect.value);
+            currentNumber = 1;
+            gameStarted = false;
+            isPaused = false;
+            pausedTime = 0;
+            startTime = null;
+
+            pauseBtn.textContent = '暂停';
+            pauseBtn.disabled = true;
+            statusDisplay.textContent = '点击任意数字开始训练';
+            timerDisplay.textContent = '00:00:00';
+            gridContainer.style.opacity = '1';
+            gridContainer.style.pointerEvents = 'auto';
+
+            // 停止计时
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            // 重新打乱方格
+            createGrid(gridSize);
+            updateBestTimeDisplay(gridSize);
+        }
+
+        /**
+         * 结束游戏
+         */
+        function endGame() {
+            gameStarted = false;
+            isPaused = false;
+            clearInterval(timerInterval);
+            pauseBtn.disabled = true;
+
+            // 计算实际用时（毫秒）
+            const elapsed = Date.now() - startTime - pausedTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const milliseconds = Math.floor((elapsed % 1000) / 10);
+            const finalTimeText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+
+            // 保存最短用时并检查是否打破记录
+            const isNewRecord = saveBestTime(gridSize, elapsed);
+
+            // 显示成功消息
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+
+            const successMsg = document.createElement('div');
+            successMsg.className = 'success-message';
+            successMsg.innerHTML = `
+                恭喜完成！<br><br>
+                用时: ${finalTimeText}<br><br>
+                方格大小: <span class="grid-size-text">${gridSize}×${gridSize}</span>${isNewRecord ? '<br><br><span style="color: #ffeb3b; font-size: 0.9em;">打破纪录！</span>' : ''}
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(successMsg);
+
+            statusDisplay.textContent = '游戏完成！点击任意位置继续';
+
+            setTimeout(() => {
+                const closeMessage = () => {
+                    overlay.remove();
+                    successMsg.remove();
+                    resetGame(); // 打乱方格
+                };
+                overlay.addEventListener('click', closeMessage);
+                successMsg.addEventListener('click', closeMessage);
+            }, 100);
+        }
+
+        // ==================== 事件监听 ====================
+
+        // 重置按钮
+        startBtn.addEventListener('click', resetGame);
+
+        // 暂停/继续按钮
+        pauseBtn.addEventListener('click', () => {
+            if (isPaused) {
+                resumeGame();
+            } else {
+                pauseGame();
+            }
+        });
+
+        // 方格大小选择器
+        gridSizeSelect.addEventListener('change', () => {
+            if (gameStarted) {
+                if (confirm('更改方格大小将重新开始游戏，确定吗？')) {
+                    resetGame();
+                } else {
+                    gridSizeSelect.value = gridSize;
+                }
+            } else {
+                resetGame();
+            }
+        });
+
+        // ==================== 禁用右键菜单 ====================
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // ==================== 初始化 ====================
+        // 初始化显示 3×3 方格
+        createGrid(3);
+        updateBestTimeDisplay(3);
+    </script>
+</body>
+</html>
