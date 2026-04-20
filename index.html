@@ -73,10 +73,11 @@
             padding: 20px;
             color: var(--text-primary);
             transition: background 0.5s ease;
+        }
+
+        .container {
             transform: scale(0.75);
             transform-origin: center center;
-            width: 133.33%;
-            margin: -16.67%;
         }
 
         /* ==================== 主容器 ==================== */
@@ -440,7 +441,7 @@
         }
 
         .success-message {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -471,11 +472,9 @@
         @keyframes popIn {
             from {
                 opacity: 0;
-                transform: translate(-50%, -50%) scale(0.8);
             }
             to {
                 opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
             }
         }
 
