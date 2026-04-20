@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="舒尔特方格 - 增强版注意力训练">
+    <meta name="description" content="舒尔特方格">
     <meta name="keywords" content="舒尔特方格,注意力训练,认知训练,专注力">
-    <title>舒尔特方格 - 增强版注意力训练</title>
+    <title>舒尔特方格</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ==================== CSS 变量定义 ==================== */
@@ -73,6 +73,10 @@
             padding: 20px;
             color: var(--text-primary);
             transition: background 0.5s ease;
+            transform: scale(0.75);
+            transform-origin: center center;
+            width: 133.33%;
+            margin: -16.67%;
         }
 
         /* ==================== 主容器 ==================== */
@@ -436,7 +440,7 @@
         }
 
         .success-message {
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
